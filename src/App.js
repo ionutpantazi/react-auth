@@ -1,11 +1,13 @@
 import React from "react";
 import firebase from "firebase/app";
+import LoginPage from  "./componente/LoginPage";
+import Anonymous from  "./componente/Anonymous";
 import "firebase/auth";
 import "firebase/database";
 import {
   FirebaseAuthProvider,
   FirebaseAuthConsumer,
-  IfFirebaseAuthed,
+  IfFirebaseAuthedAnd
 } from "@react-firebase/auth";
 import { 
   FirebaseDatabaseProvider,
@@ -13,47 +15,18 @@ import {
   FirebaseDatabaseMutation
 } from "@react-firebase/database";
 import { config } from "./config";
-import { Form, Input, Button, Row, Col , Comment } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import 'antd/dist/antd.css';
-import moment from 'moment';
 
+import { Form, Input, Button, Row, Col , Comment } from 'antd';
+import 'antd/dist/antd.css';
+import { createFromIconfontCN } from '@ant-design/icons';
+import moment from 'moment';
 
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      username: '',
-      password: '',
       value: ''
     };
-
-    this.handlePassChange = this.handlePassChange.bind(this);
-    this.handleUserChange = this.handleUserChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  handleSubmit() {
-    try {
-      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-      firebase.auth().signInWithEmailAndPassword(this.state.username, this.state.password)
-      .catch(error => {   
-        alert('user sau parola incorecta')
-        console.log('eroare de autentificare: '+error.message)
-     })
-    }catch(error){}    
-  };
-
-  handleUserChange(evt) {
-    this.setState({
-      username: evt.target.value,
-    });
-  };
-
-  handlePassChange(evt) {
-    this.setState({
-      password: evt.target.value,
-    });
   }
 
   onChange = ({ target: { value } }) => {
@@ -63,70 +36,37 @@ class App extends React.Component {
   render() {
     this.formRef = React.createRef();
     const { TextArea } = Input;
+    const IconFont = createFromIconfontCN({
+      scriptUrl: '//at.alicdn.com/t/font_1697557_jkfmpzlqesp.js',
+    });
     return (
         <FirebaseAuthProvider {...config} firebase={firebase}>
           <FirebaseAuthConsumer>
-            {({ isSignedIn }) => {
+          {({ isSignedIn }) => {
               if (isSignedIn === false) {
                 return (
-                  <div>
-                  <br />
-                  <Row justify="space-around" align="middle">
-                     <Col xs={{ span: 16 }} lg={{ span: 6 }}>
-                       <Form onFinish={this.handleSubmit}>
-                          <Form.Item
-                            name="username"
-                            rules={[{ required: true, message: 'Please input your username!' }]}
-                          >
-                            <Input
-                              allowClear
-                              prefix={<UserOutlined />}
-                              placeholder="Username"
-                              value={this.state.username}
-                              onChange={this.handleUserChange}
-                            />
-                          </Form.Item>
-                          <Form.Item
-                            name="password"
-                            rules={[{ required: true, message: 'Please input your password!' }]}
-                          >
-                            <Input
-                              allowClear
-                              prefix={<LockOutlined />}
-                              type="password"
-                              placeholder="Password"
-                              value={this.state.password}
-                              onChange={this.handlePassChange}
-                            />
-                          </Form.Item>
-                          <Form.Item>
-                            <Button type="primary" htmlType="submit">
-                              Log in
-                            </Button>
-                            <Button type="primary" style={{ float: 'right' }} onClick={() => { firebase.auth().signInAnonymously() }}>
-                              Log in anonymously
-                            </Button>
-                          </Form.Item>
-                      </Form>
-                      <div style={{color:'blue'}}>*valori de test:<br />- username: admin@admin.com;<br />- password: 123456</div>
-                    </Col>
-                  </Row>
-                  </div>
+                  <LoginPage />
                 )
               }
             }}
           </FirebaseAuthConsumer> 
-          <IfFirebaseAuthed>
+          <IfFirebaseAuthedAnd
+            filter={({ providerId }) => {
+              return (
+                providerId !== "anonymous"
+              );
+            }}
+          >
             {({ isSignedIn, user, providerId }) => {
               return (
-                <div>
+                <div style={{margin:'20px'}}>
                   <FirebaseDatabaseProvider firebase={firebase} {...config}>
                     <div>
-                      <Row>
-                        <Col span={8}>
+                      <Row justify="space-around" align="middle">
+                        <Col span={12} >
                           <b>Bine ai venit {user.email}</b><br />
                         </Col>
-                        <Col span={8} offset={8}>
+                        <Col span={12}>
                           <Button style={{ float: 'right' }} type='primary' onClick={() => { firebase.auth().signOut() }}>Sign out</Button>
                         </Col>
                       </Row>
@@ -137,10 +77,10 @@ class App extends React.Component {
                           const values = Object.values(value);
                           return values.map((val) => (
                             <Comment
-                              avatar={<div style={{fontSize:20}}><UserOutlined /></div>}
+                              avatar={<IconFont type="icon-avatar_user" style={{ fontSize: '30px' }}/>}
                               author={<b>{val.nume}</b>}
                               content={<i>{val.mesaj}</i>}
-                              datetime={<span>{moment([val.data], "YYYYMMDD").fromNow()}</span>}
+                              datetime={<span>{moment([val.data], "LLLL").fromNow()}</span>}
                             />
                           ));
                         }}
@@ -156,14 +96,14 @@ class App extends React.Component {
                                   placeholder="mesaj"
                                   onChange={this.onChange}
                                 >
-                                  <TextArea rows={4}/>
+                                  <TextArea allowClear autoSize />
                                 </Form.Item>
                                 <Form.Item>
                                   <Button 
                                     type="primary"
                                     htmlType="submit"
                                     onClick={async () => {
-                                    await runMutation({ nume: user.email, mesaj: this.state.value, data:moment(new Date()).format("YYYYMMDD")});
+                                    await runMutation({ nume: user.email, mesaj: this.state.value, data:moment(new Date()).format("LLLL")});
                                   }}>Trimite</Button>
                                 </Form.Item>
                               </Form>
@@ -176,7 +116,20 @@ class App extends React.Component {
                 </div>
               );
             }}
-          </IfFirebaseAuthed>
+          </IfFirebaseAuthedAnd>
+        <IfFirebaseAuthedAnd
+          filter={({ providerId }) => {
+            return (
+              providerId == "anonymous"
+            );
+          }}
+        >
+          {() => {
+            return (
+              <Anonymous />
+            );
+          }}
+        </IfFirebaseAuthedAnd>
       </FirebaseAuthProvider>
     );
   };
