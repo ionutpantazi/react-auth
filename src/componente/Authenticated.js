@@ -3,26 +3,37 @@ import firebase from "firebase/app";
 import { 
   FirebaseDatabaseProvider,
   FirebaseDatabaseNode,
+  FirebaseDatabaseMutation
 } from "@react-firebase/database";
 import { config } from "../config";
 
-import { Button, Row, Col, Comment } from 'antd';
+import { Form, Input, Button, Row, Col, Comment } from 'antd';
 import { createFromIconfontCN } from '@ant-design/icons';
 import moment from 'moment';
 
-class Anonymous extends React.Component {
+class Authenticated extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      value: ''
+    };
+  }
+
+  onChange = ({ target: { value } }) => {
+    this.setState({ value });
+  };
   render() {
+    const { TextArea } = Input;
     const IconFont = createFromIconfontCN({
       scriptUrl: '//at.alicdn.com/t/font_1697557_jkfmpzlqesp.js',
     });
     return (
-      <div style={{margin:'20px'}}>
+      <div style={{ margin: '20px' }}>
         <FirebaseDatabaseProvider firebase={firebase} {...config}>
           <div>
             <Row justify="space-around" align="middle">
               <Col span={12} >
-                <b>Bine ai venit</b><br />
-                <span style={{ color:'red'}}>Esti logat ca "anonim". Nu poti trimite mesaje</span>
+                <b>Bine ai venit {this.props.user}</b><br />
               </Col>
               <Col span={12}>
                 <Button style={{ float: 'right' }} type='primary' onClick={() => { firebase.auth().signOut() }}>Sign out</Button>
@@ -44,10 +55,36 @@ class Anonymous extends React.Component {
               }}
             </FirebaseDatabaseNode>
           </div>
+          <div>
+            <FirebaseDatabaseMutation type="push" path="mesaje/">
+              {({ runMutation }) => {
+                return (
+                  <div>
+                    <Form onFinish={this.onFinish}>
+                      <Form.Item
+                        placeholder="mesaj"
+                        onChange={this.onChange}
+                      >
+                        <TextArea allowClear autoSize />
+                      </Form.Item>
+                      <Form.Item>
+                        <Button
+                          type="primary"
+                          htmlType="submit"
+                          onClick={async () => {
+                            await runMutation({ nume: this.props.user, mesaj: this.state.value, data: moment(new Date()).format("LLLL") });
+                          }}>Trimite</Button>
+                      </Form.Item>
+                    </Form>
+                  </div>
+                )
+              }}
+            </FirebaseDatabaseMutation>
+          </div>
         </FirebaseDatabaseProvider>
       </div>
     )
   }
 }
 
-export default Anonymous
+export default Authenticated
