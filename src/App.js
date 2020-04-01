@@ -1,8 +1,8 @@
 import React from "react";
 import firebase from "firebase/app";
-import LoginPage from  "./componente/LoginPage";
-import Anonymous from  "./componente/Anonymous";
-import Authenticated from  "./componente/Authenticated";
+import LoginPage from "./componente/LoginPage";
+import Anonymous from "./componente/Anonymous";
+import Authenticated from "./componente/Authenticated";
 import "firebase/auth";
 import "firebase/database";
 import {
@@ -16,29 +16,31 @@ import { config } from "./config";
 class App extends React.Component {
   render() {
     return (
-        <FirebaseAuthProvider {...config} firebase={firebase}>
-          <FirebaseAuthConsumer>
+      <FirebaseAuthProvider {...config} firebase={firebase}>
+        <FirebaseAuthConsumer>
           {({ isSignedIn }) => {
-              if (isSignedIn === false) {
-                return (
+            if (isSignedIn === false) {
+              return (
+                <div>
                   <LoginPage />
-                )
-              }
-            }}
-          </FirebaseAuthConsumer> 
-          <IfFirebaseAuthedAnd
-            filter={({ providerId }) => {
-              return (
-                providerId !== "anonymous"
-              );
-            }}
-          >
-            {({ user }) => {
-              return (
-                <Authenticated user={user.email}/>
-              );
-            }}
-          </IfFirebaseAuthedAnd>
+                </div>
+              )
+            }
+          }}
+        </FirebaseAuthConsumer>
+        <IfFirebaseAuthedAnd
+          filter={({ providerId }) => {
+            return (
+              providerId !== "anonymous"
+            );
+          }}
+        >
+          {({ user }) => {
+            return (
+              <Authenticated user={user.email} />
+            );
+          }}
+        </IfFirebaseAuthedAnd>
         <IfFirebaseAuthedAnd
           filter={({ providerId }) => {
             return (
