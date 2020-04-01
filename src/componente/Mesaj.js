@@ -34,7 +34,7 @@ const Mesaj = (nume) => {
                     form.resetFields();
                   }}
                 >
-                  Trimite
+                  Send
                 </Button>
               )}
             </Form.Item>

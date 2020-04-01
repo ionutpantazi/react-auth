@@ -22,7 +22,7 @@ class Authenticated extends React.Component {
         <FirebaseDatabaseProvider firebase={firebase} {...config}>
           <Row justify="space-around" align="middle">
             <Col span={12} >
-              <b>Bine ai venit {this.props.user}</b><br />
+              <b>Welcome {this.props.user}</b><br />
             </Col>
             <Col span={12}>
               <Button style={{ float: 'right' }} type='primary' onClick={() => { firebase.auth().signOut() }}>Sign out</Button>

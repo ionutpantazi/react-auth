@@ -11,6 +11,7 @@ import {
   IfFirebaseAuthedAnd
 } from "@react-firebase/auth";
 import { config } from "./config";
+import './App.css';
 
 
 class App extends React.Component {

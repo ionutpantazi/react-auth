@@ -21,8 +21,8 @@ class Anonymous extends React.Component {
           <div>
             <Row justify="space-around" align="middle">
               <Col span={12} >
-                <b>Bine ai venit</b><br />
-                <span style={{ color:'red'}}>Esti logat ca "anonim". Nu poti trimite mesaje</span>
+                <b>Welcome guest</b><br />
+                <span style={{ color:'red'}}>Guest users are not allowed to send messages</span>
               </Col>
               <Col span={12}>
                 <Button style={{ float: 'right' }} type='primary' onClick={() => { firebase.auth().signOut() }}>Sign out</Button>

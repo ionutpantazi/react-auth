@@ -1,0 +1,13 @@
+.ant-col-xs-16 {
+    flex-basis: auto;
+    max-width: 90%;
+}
+
+.hover {
+    opacity: 0.6;
+    transition: 0.3s;
+}
+  
+.hover:hover {
+    opacity: 1;
+}
